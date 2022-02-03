@@ -2,6 +2,7 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
+import { SpotLightHelper } from 'three'
 
 /**
  * Base
@@ -35,20 +36,35 @@ scene.add(pointLight)
 
 const rectAreaLight = new THREE.RectAreaLight(0x4e00ff,2,1,1)
 scene.add(rectAreaLight)
+rectAreaLight.position.set(-1.5,0,1.5)
+rectAreaLight.lookAt(new THREE.Vector3())
+
+const spotLight = new THREE.SpotLight(0x78ff00,0.5,10,Math.PI*0.1,0.25,1)
+spotLight.position.set(0,3,1)
+scene.add(spotLight)
+scene.add(spotLight.target)
 
 gui.add(ambientLight,'intensity').max(1).min(0).step(0.0001).name('amb_intensity')
 gui.add(directionalLight,'intensity').max(1).min(0).step(0.0001).name('dir_intensity')
 gui.add(hemisphereLight,'intensity').max(1).min(0).step(0.0001).name('hemi_intensity')
 gui.add(pointLight,'intensity').max(1).min(0).step(0.0001).name('point_intensity')
 gui.add(rectAreaLight,'intensity').max(10).min(0).step(0.0001).name('rectarea_intensity')
-
+gui.add(spotLight,'intensity').max(1).min(0).step(0.0001).name('spotLight_intensity')
+gui.add(spotLight.target.position,'x').max(2).min(-2).step(0.0001).name('move_spotLight')
 /**
  * Objects
  */
+/**
+ * helper
+//  */
+// const hLHelper = new THREE.HemisphereLightHelper()
+// scene.add(hLHelper)
+
 // Material
 const material = new THREE.MeshStandardMaterial()
 material.roughness = 0.4
 gui.add(material,'roughness').max(1).min(0).step(0.001)
+gui.add(material,'metalness').max(1).min(0).step(0.001)
 
 // Objects
 const sphere = new THREE.Mesh(
@@ -76,6 +92,28 @@ plane.rotation.x = - Math.PI * 0.5
 plane.position.y = - 0.65
 
 scene.add(sphere, cube, torus, plane)
+const fontLoader = new THREE.FontLoader()
+fontLoader.load(
+    '/fonts/helvetiker_regular.typeface.json',
+    (font)=>{
+        const textGeometery = new THREE.TextBufferGeometry(
+            'LIGHT',{
+                font: font,
+                size:0.5,
+                height:0.2,
+                curveSegments:12,
+                bevelEnabled: true,
+                bevelThickness:0.03,
+                bevelSize:0.02,
+                bevelOffset:0,
+                bevelSegments:5
+            }
+        )
+        textGeometery.center()
+    const text = new THREE.Mesh(textGeometery,material)
+    text.position.y=1
+    scene.add(text)})
+
 
 /**
  * Sizes
